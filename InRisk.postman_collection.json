@@ -1,0 +1,170 @@
+{
+	"info": {
+		"_postman_id": "cc536f88-a0d4-4a2d-86ad-60e021aafeeb",
+		"name": "InRisk",
+		"description": "This FastAPI application provides two endpoints: **GET /products** and **POST /products**. The **GET** endpoint allows you to fetch a paginated list of products, with an optional filter to search for products whose titles start with a specific string. The **POST** endpoint lets you add a new product to the in-memory list, validating that the product includes a title, price, and category. Pagination can be controlled via query parameters for page and size, while the title filter works with the `title_startswith` parameter.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11223094"
+	},
+	"item": [
+		{
+			"name": "Get Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields - title, price, and category\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    responseData.forEach(function(product) {",
+							"        pm.expect(product).to.have.property('title').that.is.a('string');",
+							"        pm.expect(product).to.have.property('price').that.is.a('number');",
+							"        pm.expect(product).to.have.property('category').that.is.a('string');",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Each product title is a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array');",
+							"    responseData.forEach(product => {",
+							"        pm.expect(product.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Each product price is a non-negative number\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array');",
+							"    responseData.forEach(function(product) {",
+							"        pm.expect(product.price).to.be.a('number').and.to.be.at.least(0);",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.test(\"Each product category is a non-empty string\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.be.an('array').that.is.not.empty;",
+							"",
+							"    responseData.forEach(function(product) {",
+							"        pm.expect(product.category).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Category should not be empty\");",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/products?page=1&size=10&title_startswith=",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "size",
+							"value": "10"
+						},
+						{
+							"key": "title_startswith",
+							"value": ""
+						}
+					]
+				},
+				"description": "The HTTP GET request to `/products` fetches all products with pagination. The response is a JSON array of products, each containing a title, price, and category. The request includes pagination parameters for page number(`page`) and size(`size`), with default values of 1 and 10 respectively.\n\nThis endpoint retrieves a list of products.\n\n#### Request\n\nNo request body parameters are required for this request.\n\n#### Response\n\nThe response will be a JSON array containing objects with the following properties:\n\n- `title` (string): The title of the product.\n    \n- `price` (number): The price of the product.\n    \n- `category` (string): The category of the product.\n    \n\nExample response:\n\n``` json\n[\n    {\n        \"title\": \"\",\n        \"price\": 0,\n        \"category\": \"\"\n    }\n]\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"Response has the required fields - title, price, and category\", function () {",
+							"    const responseData = pm.response.json();",
+							"    ",
+							"    pm.expect(responseData).to.have.property('title');",
+							"    pm.expect(responseData).to.have.property('price');",
+							"    pm.expect(responseData).to.have.property('category');",
+							"});",
+							"",
+							"",
+							"pm.test(\"Price is a non-negative number\", function () {",
+							"    const responseData = pm.response.json();",
+							"",
+							"    pm.expect(responseData.price).to.be.a('number');",
+							"    pm.expect(responseData.price).to.be.at.least(0, \"Price should be a non-negative number\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Content-Type header is application/json\", function () {",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+							"});",
+							"",
+							"",
+							"pm.test(\"Title and category must be non-empty strings\", function () {",
+							"  const responseData = pm.response.json();",
+							"",
+							"  pm.expect(responseData).to.be.an('object');",
+							"  pm.expect(responseData.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");",
+							"  pm.expect(responseData.category).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Category should not be empty\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \r\n        \"title\": \"Amazing glasses\",\r\n        \"price\": 9.99,\r\n        \"category\": \"eyewear\"\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/products",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
